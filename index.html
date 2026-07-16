@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>BoomKlim App v4</title>
+    <title>BoomKlim App v4.3</title>
     <style>
         :root {
             --primary: #2c5e3b;
@@ -25,15 +25,14 @@
             background-color: var(--bg);
             color: var(--text);
             padding-bottom: 90px; 
-            padding-top: 20px;
+            padding-top: 15px;
         }
 
-        .page { display: none; padding: 15px; animation: fadeIn 0.2s ease-in-out; }
+        .page { display: none; padding: 15px; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        h1 { font-size: 28px; font-weight: 700; margin-bottom: 20px; color: var(--primary); }
-        h2 { font-size: 20px; font-weight: 600; margin-bottom: 15px; }
+        h1 { font-size: 26px; font-weight: 700; margin-bottom: 15px; color: var(--primary); }
+        h2 { font-size: 18px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
 
         .card {
             background: var(--card-bg);
@@ -66,10 +65,11 @@
         .btn-success { background: var(--accent); color: white; display: none; }
         .btn-secondary { background: #e5e5ea; color: var(--text); }
         .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-        .btn-info { background: #e6f2ff; border: 1px dashed var(--info); color: var(--info); padding: 15px; border-radius: 10px; font-size: 15px; font-weight: 600; text-align: center; cursor: pointer; width: 100%; margin-bottom: 15px;}
-        .btn-danger { background: #ffeef0; color: var(--danger); padding: 8px 12px; font-size: 14px; margin-bottom:0; }
+        .btn-info { background: #e6f2ff; border: 1px dashed var(--info); color: var(--info); padding: 15px; border-radius: 10px; font-size: 15px; font-weight: 600; text-align: center; cursor: pointer; width: 100%; margin-bottom: 15px; display: block;}
+        .btn-danger { background: #ffeef0; color: var(--danger); padding: 8px 12px; font-size: 14px; margin-bottom:0; border: none; border-radius: 6px; cursor: pointer;}
+        .btn-edit { background: #e6f2ff; color: var(--info); padding: 8px 12px; font-size: 14px; margin-bottom:0; border: none; border-radius: 6px; cursor: pointer; margin-right: 8px;}
         
-        .row-btns { display: flex; gap: 10px; margin-bottom: 15px; }
+        .row-btns { display: flex; gap: 10px; }
 
         .result-box {
             background: #eaf2ec; border-left: 4px solid var(--primary);
@@ -79,7 +79,7 @@
         .result-subval { font-size: 16px; font-weight: 600; color: #444; }
 
         .media-group { display: flex; gap: 10px; margin-bottom: 15px; }
-        .media-btn { flex: 1; padding: 12px; border: 1px dashed var(--border); border-radius: 8px; text-align: center; color: var(--subtext); font-size: 14px; cursor: pointer;}
+        .media-btn { flex: 1; padding: 12px; border: 1px dashed var(--border); border-radius: 8px; text-align: center; color: var(--subtext); font-size: 14px; cursor: pointer; background: white;}
         .photo-preview { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; display: none; margin-bottom: 15px; }
         #locationText { font-size: 12px; color: var(--subtext); margin-top: -10px; margin-bottom: 15px; display: block; }
 
@@ -131,11 +131,14 @@
         .nav-icon { font-size: 22px; margin-bottom: 2px; }
         
         input[type="file"] { display: none; }
+        
+        /* Quiz Styles */
+        .quiz-btn { background: #f0f4f1; border: 1px solid var(--primary); color: var(--primary); padding: 10px; border-radius: 8px; font-size: 14px; text-align: left; width: 100%; margin-bottom: 8px; cursor: pointer; }
+        .quiz-result { background: var(--primary); color: white; padding: 12px; border-radius: 8px; font-weight: bold; text-align: center; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
-    <!-- PAGE 1: Calculator -->
     <div id="page-calc" class="page active">
         <h1>📏 Boom Meten & Volume</h1>
         
@@ -157,7 +160,7 @@
             <label for="eyeHeight">Meethoogte (m)</label>
             <input type="number" id="eyeHeight" value="1.70" step="0.01" inputmode="decimal">
 
-            <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 15px;">
+            <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 15px; margin-top: 5px;">
             
             <h3 style="margin-bottom: 10px; font-size: 15px; color: var(--primary);">🪵 Houtvolume (Optioneel)</h3>
             <div class="row-btns">
@@ -166,20 +169,19 @@
                     <input type="number" id="dbh" placeholder="Bijv. 45" step="1" inputmode="numeric">
                 </div>
                 <div style="flex: 1;">
-                    <label for="treeType">Boomsoort (Vormgetal)</label>
+                    <label for="treeType">Boomsoort</label>
                     <select id="treeType">
-                        <option value="0.50">Loofboom (Gemiddeld: 0.5)</option>
-                        <option value="0.55">Naaldboom (Slank/Cylinder: 0.55)</option>
-                        <option value="0.40">Knot-/Brede boom (Taps: 0.4)</option>
-                        <option value="0.70">Perfecte Cilinder (0.7)</option>
+                        <option value="0.50">Loofboom (0.5)</option>
+                        <option value="0.55">Naaldboom (0.55)</option>
+                        <option value="0.40">Knotboom (0.4)</option>
                     </select>
                 </div>
             </div>
 
-            <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 15px;">
+            <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 15px; margin-top: 5px;">
 
             <label for="treeNote">Extra Opmerking</label>
-            <textarea id="treeNote" placeholder="Bijv. Veiligheidsklem nodig, dood hout in de top..."></textarea>
+            <textarea id="treeNote" placeholder="Bijv. Veiligheidsklem nodig..."></textarea>
 
             <div class="media-group">
                 <label for="cameraInput" class="media-btn">📷 Neem Foto</label>
@@ -191,7 +193,7 @@
             <img id="photoPreview" class="photo-preview" alt="Preview">
             <span id="locationText">Geen locatie opgeslagen</span>
 
-            <button class="btn btn-primary" onclick="calculateOnly()">📊 Bereken Hoogte & Volume</button>
+            <button class="btn btn-primary" onclick="calculateOnly()">📊 Bereken Hoogte</button>
 
             <div id="resultBox" class="result-box">
                 <div>Berekende Hoogte:</div>
@@ -199,70 +201,83 @@
                 <div id="volumeResult" class="result-subval"></div>
             </div>
 
-            <button id="saveBtn" class="btn btn-success" onclick="saveTreeData()">💾 Sla deze boom op</button>
-            <button class="btn btn-secondary" onclick="clearCalc()">🧹 Wis Velden / Nieuwe Meting</button>
+            <button id="saveBtn" class="btn btn-success" onclick="saveTreeData()">💾 Sla op in Logboek</button>
+            <button class="btn btn-secondary" onclick="clearCalc()">🧹 Wis Velden</button>
         </div>
     </div>
 
-    <!-- PAGE 2: Tree Recognition (NIEUW TABBLAD) -->
     <div id="page-identify" class="page">
         <h1>🍃 Boom Herkennen</h1>
         
         <div class="card">
-            <p style="margin-bottom: 15px; color: #444;">Maak een duidelijke foto van een <strong>blad, de bast, een bloem of vrucht</strong> om de boomsoort te achterhalen.</p>
+            <h2>1. Online Herkenning</h2>
+            <p style="margin-bottom: 15px; color: #444; font-size: 14px;">Maak een foto. Deze blijft nu wél bewaard. Om veiligheidsredenen moet je hem op PlantNet wel even handmatig kiezen uit je fotorol!</p>
             
-            <label for="idCameraInput" class="btn-info">📷 Neem of Kies Identificatie Foto</label>
+            <label for="idCameraInput" class="btn-info">📷 Neem Foto van Blad/Bast</label>
             <input type="file" id="idCameraInput" accept="image/*">
             
             <img id="idPhotoPreview" class="photo-preview" alt="Identificatie Preview">
-
-            <div id="recognitionInstructions" class="ai-box" style="display: none;">
-                <h3 style="color: var(--info); margin-bottom: 8px;">🔍 Hoe nu herkennen?</h3>
-                
-                <strong>Optie 1: Direct via je iPhone (Aanbevolen)</strong>
-                <ul>
-                    <li>De foto die je net hebt gekozen staat nu ook in de gewone Foto-app van je iPhone.</li>
-                    <li>Open je Foto-app, zoek de foto op en tik onderin op het <strong>✨ (i) Info-icoontje</strong>.</li>
-                    <li>Je iPhone herkent de plant vaak direct en gratis!</li>
-                </ul>
-                
-                <strong>Optie 2: Online database raadplegen</strong>
-                <p style="margin-top: 5px;">Klik op de knop hieronder om gratis de grootste Europese plantendatabase te openen. Je kunt daar direct deze foto uploaden voor een nauwkeurige match:</p>
-                
-                <button class="btn btn-outline" style="margin-top: 12px; width: 100%;" onclick="openPlantNet()">🌐 Open Pl@ntNet Herkenning</button>
-            </div>
             
-            <div class="ai-box" style="background: #fffdf0; border-left: 4px solid var(--warning); margin-top: 15px;">
-                <strong>💡 Tip voor klimmers:</strong> Weet je na determinatie welke boom het is? Typ de naam dan in bij het tabblad <strong>Meten</strong> onder 'Boom ID / Locatie' om hem correct in je logboek te zetten!
+            <button id="clearIdPhotoBtn" class="btn btn-secondary" style="display:none; font-size: 14px; padding: 8px;" onclick="clearIdPhoto()">🗑️ Wis deze foto</button>
+
+            <button class="btn btn-outline" style="margin-top: 12px;" onclick="openPlantNet()">🌐 Open Pl@ntNet (Kies daar je foto)</button>
+        </div>
+
+        <div class="card">
+            <h2>2. Offline Blad-Sleutel (100% lokaal)</h2>
+            <p style="margin-bottom: 15px; color: #444; font-size: 14px;">Geen internet of slechte Apple-herkenning? Bepaal de meest voorkomende bomen zelf op basis van het blad.</p>
+            
+            <div id="quiz-step-1">
+                <label>Hoe ziet de rand van het blad eruit?</label>
+                <button class="quiz-btn" onclick="nextQuiz('gelobd')">〰️ Gelobd (Diepe inhammen, ronde vormen)</button>
+                <button class="quiz-btn" onclick="nextQuiz('getand')">锯 Getand of Gezaagd (Scherpe randjes)</button>
+                <button class="quiz-btn" onclick="nextQuiz('glad')">➖ Glad en gaaf (Geen kartels)</button>
+                <button class="quiz-btn" onclick="nextQuiz('samengesteld')">🌿 Samengesteld (Meerdere blaadjes aan 1 steel)</button>
+                <button class="quiz-btn" onclick="nextQuiz('naald')">🌲 Naalden of schubben (Geen normaal blad)</button>
             </div>
+
+            <div id="quiz-result" class="quiz-result">
+                </div>
+            <button id="quiz-reset" class="btn btn-secondary" style="display:none; margin-top:10px;" onclick="resetQuiz()">🔄 Begin opnieuw</button>
         </div>
     </div>
 
-    <!-- PAGE 3: Logbook -->
     <div id="page-log" class="page">
         <h1>🌳 Opgeslagen Bomen</h1>
+        
+        <button class="btn btn-outline" style="margin-bottom: 15px; background-color: #e6f2ff; border-color: var(--info); color: var(--info);" onclick="exportToCSV()">
+            📥 Exporteer naar Excel (CSV)
+        </button>
+
         <div class="card">
             <div id="treeList">
-                <!-- Trees will be injected here -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- PAGE 4: Checklist -->
     <div id="page-gear" class="page">
         <h1>🎒 Materiaal</h1>
         <div class="card">
+            
+            <label for="gearProfile" style="color: var(--primary);">📋 Kies Profiel:</label>
+            <select id="gearProfile" onchange="loadGearProfile()">
+                <option value="">Kies profiel...</option>
+                <option value="algemeen">Algemeen (Standaard klimmen)</option>
+                <option value="inspectie">Inspectie & Inventarisatie</option>
+                <option value="snoeien">Zagen & Snoeien</option>
+            </select>
+            
+            <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 15px;">
+
             <div class="check-form">
-                <input type="text" id="newItemText" placeholder="Nieuw item (bijv. klimtouw)">
+                <input type="text" id="newItemText" placeholder="Nieuw item toevoegen...">
                 <button class="btn btn-primary" onclick="addChecklistItem()">+</button>
             </div>
             <div id="checklistCont">
-                <!-- Checklist items injected here -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- Bottom Navigation (Aangepast naar 4 tabbladen) -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('calc', this)">
             <span class="nav-icon">📏</span>
@@ -283,102 +298,101 @@
     </div>
 
     <script>
-        let trees = JSON.parse(localStorage.getItem('app_trees')) || [];
-        let gearList = JSON.parse(localStorage.getItem('app_gear')) || [
-            {id: 1, text: "Klimharnas", done: false},
-            {id: 2, text: "Klimlijn (langer dan boom!)", done: false},
-            {id: 3, text: "Helm", done: false},
-            {id: 4, text: "Karabiners", done: false}
-        ];
+        var trees = [];
+        try { trees = JSON.parse(localStorage.getItem('app_trees')) || []; } catch(e) {}
+
+        var gearList = [];
+        try {
+            gearList = JSON.parse(localStorage.getItem('app_gear')) || [
+                {id: 1, text: "Klimharnas", done: false},
+                {id: 2, text: "Klimlijn", done: false},
+                {id: 3, text: "Helm", done: false}
+            ];
+        } catch(e) {}
         
-        let currentPhotoBase64 = null;
-        let currentGps = null;
+        var gearProfiles = {
+            'algemeen': ['Klimharnas', 'Klimlijn', 'Helm', 'Karabiners', 'Werplijn'],
+            'inspectie': ['Klimharnas', 'Klimlijn', 'Helm', 'Prikstok', 'Meetlint'],
+            'snoeien': ['Klimharnas', 'Klimlijn', 'Helm', 'Handzaag (Silky)', 'Kettingzaag', 'Lanyard']
+        };
         
-        let tempCalculatedHeight = null;
-        let tempCalculatedVolume = null;
+        var currentPhotoBase64 = null;
+        var currentGps = null;
+        var tempCalculatedHeight = null;
+        var tempCalculatedVolume = null;
+
+        var savedIdPhoto = null;
+        try { savedIdPhoto = localStorage.getItem('app_id_photo_temp'); } catch(e) {}
 
         window.onload = function() {
             renderTrees();
             renderGear();
+            
+            if (savedIdPhoto) {
+                document.getElementById('idPhotoPreview').src = savedIdPhoto;
+                document.getElementById('idPhotoPreview').style.display = "block";
+                document.getElementById('clearIdPhotoBtn').style.display = "block";
+            }
         };
 
         function switchTab(tabId, element) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
+            var pages = document.querySelectorAll('.page');
+            for (var i = 0; i < pages.length; i++) { pages[i].classList.remove('active'); }
+            var navItems = document.querySelectorAll('.nav-item');
+            for (var j = 0; j < navItems.length; j++) { navItems[j].classList.remove('active'); }
             document.getElementById('page-' + tabId).classList.add('active');
             element.classList.add('active');
         }
 
+        // --- CALCULATOR ---
         function calculateOnly() {
-            const D = parseFloat(document.getElementById('distance').value);
-            const L = parseFloat(document.getElementById('laser').value);
-            const O = parseFloat(document.getElementById('eyeHeight').value) || 0;
-            const dbh = parseFloat(document.getElementById('dbh').value);
-            const f = parseFloat(document.getElementById('treeType').value);
+            var D = parseFloat(document.getElementById('distance').value);
+            var L = parseFloat(document.getElementById('laser').value);
+            var O = parseFloat(document.getElementById('eyeHeight').value) || 0;
+            var dbh = parseFloat(document.getElementById('dbh').value);
+            var f = parseFloat(document.getElementById('treeType').value);
 
-            if (isNaN(D) || isNaN(L)) return alert("Vul D (Afstand) en L (Laser) in.");
-            if (D >= L) return alert("Laser (L) moet groter zijn dan afstand (D).");
+            if (isNaN(D) || isNaN(L)) { alert("Vul D en L in."); return; }
+            if (D >= L) { alert("Laser moet groter zijn dan afstand."); return; }
 
-            const H = Math.sqrt(Math.pow(L, 2) - Math.pow(D, 2)) + O;
+            var H = Math.sqrt(Math.pow(L, 2) - Math.pow(D, 2)) + O;
             tempCalculatedHeight = H.toFixed(2);
 
             tempCalculatedVolume = null;
-            let volDetailsText = "";
             if (!isNaN(dbh) && dbh > 0) {
-                const dMeters = dbh / 100;
-                const g = (Math.PI * Math.pow(dMeters, 2)) / 4;
-                const V = g * H * f;
+                var V = (Math.PI * Math.pow(dbh/100, 2) / 4) * H * f;
                 tempCalculatedVolume = V.toFixed(3);
-                volDetailsText = `🪵 Geschat houtvolume: ~${tempCalculatedVolume} m³ (kuub)`;
             }
 
             document.getElementById('resultValue').innerText = tempCalculatedHeight + " m";
-            const volRes = document.getElementById('volumeResult');
+            var volRes = document.getElementById('volumeResult');
             if (tempCalculatedVolume) {
-                volRes.innerText = volDetailsText;
+                volRes.innerText = "🪵 Volume: ~" + tempCalculatedVolume + " m³";
                 volRes.style.display = "block";
-            } else {
-                volRes.style.display = "none";
-            }
+            } else { volRes.style.display = "none"; }
+            
             document.getElementById('resultBox').style.display = "block";
             document.getElementById('saveBtn').style.display = "flex";
-            document.getElementById('saveBtn').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         function saveTreeData() {
-            if (!tempCalculatedHeight) return alert("Bereken eerst de hoogte!");
-
-            const D = parseFloat(document.getElementById('distance').value);
-            const L = parseFloat(document.getElementById('laser').value);
-            const O = parseFloat(document.getElementById('eyeHeight').value) || 0;
-            const dbh = parseFloat(document.getElementById('dbh').value);
-            const note = document.getElementById('treeNote').value.trim();
-            const name = document.getElementById('treeName').value || `Boom ${trees.length + 1}`;
-
-            let details = `D:${D}m | L:${L}m | O:${O}m`;
-            if (tempCalculatedVolume) {
-                details += ` | DBH:${dbh}cm | Vol:${tempCalculatedVolume}m³`;
-            }
-
-            const newTree = {
+            if (!tempCalculatedHeight) return;
+            var newTree = {
                 id: Date.now(),
-                name: name,
+                name: document.getElementById('treeName').value || ("Boom " + (trees.length + 1)),
                 height: tempCalculatedHeight,
-                volume: tempCalculatedVolume,
-                details: details,
-                note: note,
+                volume: tempCalculatedVolume || "",
+                details: "D:" + document.getElementById('distance').value + " | L:" + document.getElementById('laser').value,
+                note: document.getElementById('treeNote').value,
                 date: new Date().toLocaleDateString('nl-NL'),
                 photo: currentPhotoBase64,
-                gps: currentGps
+                gps: currentGps || ""
             };
-
             trees.unshift(newTree);
-            saveTrees();
+            try { localStorage.setItem('app_trees', JSON.stringify(trees)); } catch(e) { alert("Geheugen vol!"); trees.shift(); }
             renderTrees();
-            
-            alert("Boom succesvol opgeslagen in je Logboek!");
-            switchTab('log', document.querySelectorAll('.nav-item')[2]); // Aangepast naar index 2 i.v.m. extra tabblad
+            alert("Boom opgeslagen!");
+            switchTab('log', document.querySelectorAll('.nav-item')[2]);
             clearCalc();
         }
 
@@ -388,105 +402,110 @@
             document.getElementById('laser').value = '';
             document.getElementById('dbh').value = '';
             document.getElementById('treeNote').value = '';
-            
             document.getElementById('resultBox').style.display = "none";
             document.getElementById('saveBtn').style.display = "none";
-            
-            tempCalculatedHeight = null;
-            tempCalculatedVolume = null;
-            currentPhotoBase64 = null;
-            currentGps = null;
-            
+            tempCalculatedHeight = null; tempCalculatedVolume = null;
+            currentPhotoBase64 = null; currentGps = null;
             document.getElementById('photoPreview').style.display = "none";
             document.getElementById('locationText').innerText = "Geen locatie opgeslagen";
         }
 
-        function saveTrees() {
-            try {
-                localStorage.setItem('app_trees', JSON.stringify(trees));
-            } catch (e) {
-                alert("Geheugen vol! Verwijder oude bomen met foto's om ruimte te maken.");
-                trees.shift();
+        function renderTrees() {
+            var list = document.getElementById('treeList');
+            list.innerHTML = '';
+            if (trees.length === 0) { list.innerHTML = "<p style='color:#888;text-align:center;'>Nog geen bomen.</p>"; return; }
+            for (var i = 0; i < trees.length; i++) {
+                var tree = trees[i];
+                var html = '<div class="tree-item"><div class="tree-header"><span class="tree-title">' + escapeHTML(tree.name) + '</span><span class="tree-height">' + tree.height + 'm</span></div><div class="tree-body">';
+                if (tree.photo) html += '<img src="' + tree.photo + '" class="tree-img" alt="Foto">';
+                html += '<div style="flex: 1;"><div class="tree-details">' + tree.details + '<br>' + tree.date + (tree.gps ? ' | ' + tree.gps : '') + '</div>';
+                if (tree.note) html += '<div class="tree-note">' + escapeHTML(tree.note) + '</div>';
+                html += '<button class="btn-edit" onclick="editTreeName(' + tree.id + ')">✏️ Naam bewerken</button>' +
+                        '<button class="btn-danger" onclick="deleteTree(' + tree.id + ')">Verwijder</button></div></div></div>';
+                list.innerHTML += html;
             }
         }
 
-        function renderTrees() {
-            const list = document.getElementById('treeList');
-            list.innerHTML = '';
-            if (trees.length === 0) return list.innerHTML = "<p style='color:#888;text-align:center;'>Nog geen bomen opgeslagen.</p>";
-
-            trees.forEach(tree => {
-                let html = `<div class="tree-item">
-                    <div class="tree-header">
-                        <span class="tree-title">${escapeHTML(tree.name)}</span>
-                        <span class="tree-height">${tree.height}m</span>
-                    </div>
-                    <div class="tree-body">`;
-                
-                if (tree.photo) {
-                    html += `<img src="${tree.photo}" class="tree-img" alt="Foto">`;
+        // NEW: Edit tree name function
+        function editTreeName(id) {
+            var tree = trees.find(function(t) { return t.id === id; });
+            if (!tree) return;
+            
+            var newName = prompt("Wijzig de naam van de boom of locatie:", tree.name);
+            if (newName !== null) {
+                newName = newName.trim();
+                if (newName === "") {
+                    alert("De naam mag niet leeg zijn!");
+                    return;
                 }
-                
-                html += `<div style="flex: 1;">
-                            <div class="tree-details">${tree.details}<br>${tree.date} ${tree.gps ? '| 📍 '+tree.gps : ''}</div>`;
-                
-                if (tree.note) {
-                    html += `<div class="tree-note"><strong>Opmerking:</strong> ${escapeHTML(tree.note)}</div>`;
+                tree.name = newName;
+                try {
+                    localStorage.setItem('app_trees', JSON.stringify(trees));
+                } catch(e) {
+                    alert("Kon de wijziging niet opslaan.");
                 }
-                
-                html += `   <button class="btn-danger" onclick="deleteTree(${tree.id})">Verwijder</button>
-                        </div>
-                    </div>
-                </div>`;
-                list.innerHTML += html;
-            });
-        }
-
-        function deleteTree(id) {
-            if(confirm("Weet je zeker dat je deze boom wilt verwijderen?")) {
-                trees = trees.filter(t => t.id !== id);
-                saveTrees();
                 renderTrees();
             }
         }
 
-        // Camera input voor het Meten tabblad
+        function deleteTree(id) {
+            if(confirm("Verwijderen?")) {
+                trees = trees.filter(function(t) { return t.id !== id; });
+                try { localStorage.setItem('app_trees', JSON.stringify(trees)); } catch(e) {}
+                renderTrees();
+            }
+        }
+
+        function exportToCSV() {
+            if (trees.length === 0) { alert("Logboek is leeg."); return; }
+            var csv = "\uFEFFBoom ID;Hoogte;Volume;Details;Opmerking;Datum;GPS\r\n";
+            for (var i = 0; i < trees.length; i++) {
+                var t = trees[i];
+                csv += '"'+(t.name||"")+'";"'+t.height+'";"'+(t.volume||"")+'";"'+t.details+'";"'+(t.note||"")+'";"'+t.date+'";"'+(t.gps||"")+'"\r\n';
+            }
+            var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "BoomKlim_Logboek.csv";
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        // --- CAMERA & GPS ---
         document.getElementById('cameraInput').addEventListener('change', function(e) {
-            handleImageUpload(e, 'photoPreview', true);
+            handleImageUpload(e, 'photoPreview', function(b64){ currentPhotoBase64 = b64; });
         });
 
-        // Camera input voor het Herkennen tabblad
         document.getElementById('idCameraInput').addEventListener('change', function(e) {
-            handleImageUpload(e, 'idPhotoPreview', false);
-            document.getElementById('recognitionInstructions').style.display = "block";
+            handleImageUpload(e, 'idPhotoPreview', function(b64){ 
+                try { localStorage.setItem('app_id_photo_temp', b64); } catch(err) {}
+                document.getElementById('clearIdPhotoBtn').style.display = "block";
+            });
         });
 
-        function handleImageUpload(e, previewId, saveAsCurrent) {
-            const file = e.target.files[0];
+        function clearIdPhoto() {
+            try { localStorage.removeItem('app_id_photo_temp'); } catch(err) {}
+            document.getElementById('idPhotoPreview').style.display = "none";
+            document.getElementById('idPhotoPreview').src = "";
+            document.getElementById('clearIdPhotoBtn').style.display = "none";
+            document.getElementById('idCameraInput').value = "";
+        }
+
+        function handleImageUpload(e, previewId, callback) {
+            var file = e.target.files[0];
             if (!file) return;
-
-            const reader = new FileReader();
+            var reader = new FileReader();
             reader.onload = function(event) {
-                const img = new Image();
+                var img = new Image();
                 img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600;
-                    const scaleSize = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scaleSize;
-
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    
-                    const base64Data = canvas.toDataURL('image/jpeg', 0.6);
-                    
-                    if (saveAsCurrent) {
-                        currentPhotoBase64 = base64Data;
-                    }
-                    
-                    const preview = document.getElementById(previewId);
-                    preview.src = base64Data;
-                    preview.style.display = "block";
+                    var canvas = document.createElement('canvas');
+                    var max = 500;
+                    var scale = max / img.width;
+                    canvas.width = max; canvas.height = img.height * scale;
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    var b64 = canvas.toDataURL('image/jpeg', 0.5);
+                    callback(b64);
+                    var prev = document.getElementById(previewId);
+                    prev.src = b64; prev.style.display = "block";
                 };
                 img.src = event.target.result;
             };
@@ -494,76 +513,77 @@
         }
 
         function getLocation() {
-            const locText = document.getElementById('locationText');
-            locText.innerText = "Locatie zoeken...";
-            
+            var loc = document.getElementById('locationText');
+            loc.innerText = "Bezig...";
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        currentGps = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
-                        locText.innerText = `📍 ${currentGps}`;
-                    },
-                    (err) => { locText.innerText = "❌ Locatie geweigerd/mislukt"; }
+                    function(pos) { currentGps = pos.coords.latitude.toFixed(4) + ", " + pos.coords.longitude.toFixed(4); loc.innerText = "📍 " + currentGps; },
+                    function() { loc.innerText = "❌ GPS mislukt"; }
                 );
-            } else {
-                locText.innerText = "GPS niet ondersteund";
             }
         }
         
-        function openPlantNet() {
-            window.open('https://identify.plantnet.org/nl', '_blank');
+        function openPlantNet() { window.open('https://identify.plantnet.org/nl', '_blank'); }
+
+        // --- OFFLINE QUIZ ---
+        function nextQuiz(answer) {
+            var res = document.getElementById('quiz-result');
+            var step1 = document.getElementById('quiz-step-1');
+            var resetBtn = document.getElementById('quiz-reset');
+            
+            step1.style.display = "none";
+            res.style.display = "block";
+            resetBtn.style.display = "block";
+
+            if(answer === 'gelobd') res.innerHTML = "🌳 Grote kans op een <strong>EIK (Zomereik / Wintereik)</strong> of eventueel een <strong>Esdoorn</strong> (als het blad handvormig gelobd is).";
+            else if(answer === 'getand') res.innerHTML = "🌳 Grote kans op een <strong>Beuk, Haagbeuk, Iep of Kastanje</strong>. <br><br><small>Tip: Heeft de stam gladde, grijze bast? Dan is het een Beuk.</small>";
+            else if(answer === 'glad') res.innerHTML = "🌳 Dit lijkt op een gaafgerande boom. Vaak is dit een <strong>Beuk</strong> of een <strong>Magnolia</strong>.";
+            else if(answer === 'samengesteld') res.innerHTML = "🌳 Grote kans op een <strong>Es, Robinia (Acacia) of een Notenboom (Walnoot)</strong>.";
+            else if(answer === 'naald') res.innerHTML = "🌲 Dit is een naaldboom: Grote kans op een <strong>Den (lange naalden in setjes), Spar (korte enkele naalden) of Taxus</strong>.";
         }
 
+        function resetQuiz() {
+            document.getElementById('quiz-step-1').style.display = "block";
+            document.getElementById('quiz-result').style.display = "none";
+            document.getElementById('quiz-reset').style.display = "none";
+        }
+
+        // --- CHECKLIST ---
         function renderGear() {
-            const cont = document.getElementById('checklistCont');
+            var cont = document.getElementById('checklistCont');
             cont.innerHTML = '';
-            
-            gearList.forEach(item => {
-                const div = document.createElement('div');
-                div.className = `check-item ${item.done ? 'done' : ''}`;
-                div.innerHTML = `
-                    <label>
-                        <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleGear(${item.id})">
-                        ${escapeHTML(item.text)}
-                    </label>
-                    <button style="border:none; background:none; color:var(--danger); font-size:18px;" onclick="deleteGear(${item.id})">🗑️</button>
-                `;
+            for (var i = 0; i < gearList.length; i++) {
+                var item = gearList[i];
+                var div = document.createElement('div');
+                div.className = "check-item " + (item.done ? 'done' : '');
+                div.innerHTML = '<label><input type="checkbox" ' + (item.done ? 'checked' : '') + ' onchange="toggleGear(' + item.id + ')">' + escapeHTML(item.text) + '</label>' +
+                    '<button style="border:none; background:none; color:var(--danger); font-size:18px; cursor:pointer;" onclick="deleteGear(' + item.id + ')">🗑️</button>';
                 cont.appendChild(div);
-            });
-            localStorage.setItem('app_gear', JSON.stringify(gearList));
+            }
+            try { localStorage.setItem('app_gear', JSON.stringify(gearList)); } catch(e) {}
         }
-
+        function loadGearProfile() {
+            var p = document.getElementById('gearProfile').value;
+            if (!p) return;
+            if (confirm("Lijst vervangen?")) {
+                gearList = [];
+                for (var i = 0; i < gearProfiles[p].length; i++) { gearList.push({ id: Date.now() + i, text: gearProfiles[p][i], done: false }); }
+                renderGear();
+            }
+            document.getElementById('gearProfile').value = "";
+        }
         function addChecklistItem() {
-            const input = document.getElementById('newItemText');
+            var input = document.getElementById('newItemText');
             if (!input.value.trim()) return;
-            
-            gearList.push({ id: Date.now(), text: input.value, done: false });
-            input.value = '';
-            renderGear();
+            gearList.push({ id: Date.now(), text: input.value.trim(), done: false });
+            input.value = ''; renderGear();
         }
-
         function toggleGear(id) {
-            const item = gearList.find(g => g.id === id);
-            if (item) item.done = !item.done;
-            renderGear();
+            var item = gearList.find(function(g) { return g.id === id; });
+            if (item) item.done = !item.done; renderGear();
         }
-
-        function deleteGear(id) {
-            gearList = gearList.filter(g => g.id !== id);
-            renderGear();
-        }
-
-        function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, 
-                tag => ({
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    "'": '&#39;',
-                    '"': '&quot;'
-                }[tag] || tag)
-            );
-        }
+        function deleteGear(id) { gearList = gearList.filter(function(g) { return g.id !== id; }); renderGear(); }
+        function escapeHTML(str) { return str.replace(/[&<>'"]/g, function(tag) { return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[tag]||tag; }); }
     </script>
 </body>
 </html>
