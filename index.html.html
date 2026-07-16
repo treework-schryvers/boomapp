@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>BoomKlim App v4</title>
+    <style>
+        :root {
+            --primary: #2c5e3b;
+            --bg: #f4f7f5;
+            --card-bg: #ffffff;
+            --text: #1c1c1e;
+            --subtext: #8e8e93;
+            --border: #e5e5ea;
+            --accent: #34c759;
+            --danger: #ff3b30;
+            --info: #007aff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding-bottom: 90px; 
+            padding-top: 20px;
+        }
+
+        .page { display: none; padding: 15px; animation: fadeIn 0.2s ease-in-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        h1 { font-size: 28px; font-weight: 700; margin-bottom: 20px; color: var(--primary); }
+        h2 { font-size: 20px; font-weight: 600; margin-bottom: 15px; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        label { display: block; font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+        
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%; padding: 12px; border: 1px solid var(--border);
+            border-radius: 8px; font-size: 16px; margin-bottom: 15px;
+            background-color: #fafafa;
+            -webkit-appearance: none;
+        }
+
+        textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); background-color: #fff; }
+
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: 600; cursor: pointer; text-align: center;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            margin-bottom: 10px;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--accent); color: white; display: none; }
+        .btn-secondary { background: #e5e5ea; color: var(--text); }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-info { background: #e6f2ff; border: 1px dashed var(--info); color: var(--info); padding: 15px; border-radius: 10px; font-size: 15px; font-weight: 600; text-align: center; cursor: pointer; width: 100%; margin-bottom: 15px;}
+        .btn-danger { background: #ffeef0; color: var(--danger); padding: 8px 12px; font-size: 14px; margin-bottom:0; }
+        
+        .row-btns { display: flex; gap: 10px; margin-bottom: 15px; }
+
+        .result-box {
+            background: #eaf2ec; border-left: 4px solid var(--primary);
+            padding: 15px; border-radius: 8px; margin-top: 15px; margin-bottom: 15px; display: none;
+        }
+        .result-val { font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+        .result-subval { font-size: 16px; font-weight: 600; color: #444; }
+
+        .media-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .media-btn { flex: 1; padding: 12px; border: 1px dashed var(--border); border-radius: 8px; text-align: center; color: var(--subtext); font-size: 14px; cursor: pointer;}
+        .photo-preview { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; display: none; margin-bottom: 15px; }
+        #locationText { font-size: 12px; color: var(--subtext); margin-top: -10px; margin-bottom: 15px; display: block; }
+
+        .ai-box {
+            background: #f0f4f8; padding: 15px; border-radius: 8px; margin-bottom: 15px;
+            font-size: 14px; color: #444; border-left: 4px solid var(--info);
+            line-height: 1.4;
+        }
+        .ai-box ul { margin-left: 20px; margin-top: 8px; margin-bottom: 8px; }
+
+        .tree-item { border-bottom: 1px solid var(--border); padding: 12px 0; }
+        .tree-item:last-child { border-bottom: none; }
+        .tree-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .tree-title { font-weight: 700; font-size: 16px; }
+        .tree-height { color: var(--primary); font-weight: bold; font-size: 18px; }
+        .tree-details { font-size: 13px; color: var(--subtext); margin-bottom: 8px;}
+        .tree-note { font-size: 13px; font-style: italic; color: #444; background: #f0f4f1; padding: 8px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--primary); }
+        .tree-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+        .tree-body { display: flex; gap: 10px; align-items: flex-start; }
+
+        .check-form { display: flex; gap: 10px; margin-bottom: 20px; }
+        .check-form input { margin-bottom: 0; }
+        .check-form button { width: auto; padding: 0 20px; }
+        
+        .check-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 0; border-bottom: 1px solid var(--border);
+        }
+        .check-item label { 
+            display: flex; align-items: center; gap: 10px; font-size: 16px; 
+            font-weight: normal; margin-bottom: 0; flex: 1;
+        }
+        .check-item input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary); }
+        .check-item.done { text-decoration: line-through; color: var(--subtext); }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 85px;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(10px); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; padding-top: 8px;
+            padding-bottom: 22px; z-index: 1000;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--subtext); font-size: 10px; font-weight: 500; cursor: pointer;
+            flex: 1; text-align: center;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 22px; margin-bottom: 2px; }
+        
+        input[type="file"] { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- PAGE 1: Calculator -->
+    <div id="page-calc" class="page active">
+        <h1>📏 Boom Meten & Volume</h1>
+        
+        <div class="card">
+            <label for="treeName">Boom ID / Locatie</label>
+            <input type="text" id="treeName" placeholder="Bijv. Eik voortuin">
+
+            <div class="row-btns">
+                <div style="flex: 1;">
+                    <label for="distance">Afstand (m)</label>
+                    <input type="number" id="distance" placeholder="D" step="0.01" inputmode="decimal">
+                </div>
+                <div style="flex: 1;">
+                    <label for="laser">Laser (m)</label>
+                    <input type="number" id="laser" placeholder="L" step="0.01" inputmode="decimal">
+                </div>
+            </div>
+
+            <label for="eyeHeight">Meethoogte (m)</label>
+            <input type="number" id="eyeHeight" value="1.70" step="0.01" inputmode="decimal">
+
+            <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 15px;">
+            
+            <h3 style="margin-bottom: 10px; font-size: 15px; color: var(--primary);">🪵 Houtvolume (Optioneel)</h3>
+            <div class="row-btns">
+                <div style="flex: 1;">
+                    <label for="dbh">Diameter (cm @1.3m)</label>
+                    <input type="number" id="dbh" placeholder="Bijv. 45" step="1" inputmode="numeric">
+                </div>
+                <div style="flex: 1;">
+                    <label for="treeType">Boomsoort (Vormgetal)</label>
+                    <select id="treeType">
+                        <option value="0.50">Loofboom (Gemiddeld: 0.5)</option>
+                        <option value="0.55">Naaldboom (Slank/Cylinder: 0.55)</option>
+                        <option value="0.40">Knot-/Brede boom (Taps: 0.4)</option>
+                        <option value="0.70">Perfecte Cilinder (0.7)</option>
+                    </select>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 15px;">
+
+            <label for="treeNote">Extra Opmerking</label>
+            <textarea id="treeNote" placeholder="Bijv. Veiligheidsklem nodig, dood hout in de top..."></textarea>
+
+            <div class="media-group">
+                <label for="cameraInput" class="media-btn">📷 Neem Foto</label>
+                <input type="file" id="cameraInput" accept="image/*" capture="environment">
+                
+                <div class="media-btn" onclick="getLocation()">📍 GPS Locatie</div>
+            </div>
+            
+            <img id="photoPreview" class="photo-preview" alt="Preview">
+            <span id="locationText">Geen locatie opgeslagen</span>
+
+            <button class="btn btn-primary" onclick="calculateOnly()">📊 Bereken Hoogte & Volume</button>
+
+            <div id="resultBox" class="result-box">
+                <div>Berekende Hoogte:</div>
+                <div class="result-val" id="resultValue">-</div>
+                <div id="volumeResult" class="result-subval"></div>
+            </div>
+
+            <button id="saveBtn" class="btn btn-success" onclick="saveTreeData()">💾 Sla deze boom op</button>
+            <button class="btn btn-secondary" onclick="clearCalc()">🧹 Wis Velden / Nieuwe Meting</button>
+        </div>
+    </div>
+
+    <!-- PAGE 2: Tree Recognition (NIEUW TABBLAD) -->
+    <div id="page-identify" class="page">
+        <h1>🍃 Boom Herkennen</h1>
+        
+        <div class="card">
+            <p style="margin-bottom: 15px; color: #444;">Maak een duidelijke foto van een <strong>blad, de bast, een bloem of vrucht</strong> om de boomsoort te achterhalen.</p>
+            
+            <label for="idCameraInput" class="btn-info">📷 Neem of Kies Identificatie Foto</label>
+            <input type="file" id="idCameraInput" accept="image/*">
+            
+            <img id="idPhotoPreview" class="photo-preview" alt="Identificatie Preview">
+
+            <div id="recognitionInstructions" class="ai-box" style="display: none;">
+                <h3 style="color: var(--info); margin-bottom: 8px;">🔍 Hoe nu herkennen?</h3>
+                
+                <strong>Optie 1: Direct via je iPhone (Aanbevolen)</strong>
+                <ul>
+                    <li>De foto die je net hebt gekozen staat nu ook in de gewone Foto-app van je iPhone.</li>
+                    <li>Open je Foto-app, zoek de foto op en tik onderin op het <strong>✨ (i) Info-icoontje</strong>.</li>
+                    <li>Je iPhone herkent de plant vaak direct en gratis!</li>
+                </ul>
+                
+                <strong>Optie 2: Online database raadplegen</strong>
+                <p style="margin-top: 5px;">Klik op de knop hieronder om gratis de grootste Europese plantendatabase te openen. Je kunt daar direct deze foto uploaden voor een nauwkeurige match:</p>
+                
+                <button class="btn btn-outline" style="margin-top: 12px; width: 100%;" onclick="openPlantNet()">🌐 Open Pl@ntNet Herkenning</button>
+            </div>
+            
+            <div class="ai-box" style="background: #fffdf0; border-left: 4px solid var(--warning); margin-top: 15px;">
+                <strong>💡 Tip voor klimmers:</strong> Weet je na determinatie welke boom het is? Typ de naam dan in bij het tabblad <strong>Meten</strong> onder 'Boom ID / Locatie' om hem correct in je logboek te zetten!
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 3: Logbook -->
+    <div id="page-log" class="page">
+        <h1>🌳 Opgeslagen Bomen</h1>
+        <div class="card">
+            <div id="treeList">
+                <!-- Trees will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 4: Checklist -->
+    <div id="page-gear" class="page">
+        <h1>🎒 Materiaal</h1>
+        <div class="card">
+            <div class="check-form">
+                <input type="text" id="newItemText" placeholder="Nieuw item (bijv. klimtouw)">
+                <button class="btn btn-primary" onclick="addChecklistItem()">+</button>
+            </div>
+            <div id="checklistCont">
+                <!-- Checklist items injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation (Aangepast naar 4 tabbladen) -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('calc', this)">
+            <span class="nav-icon">📏</span>
+            <span>Meten</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('identify', this)">
+            <span class="nav-icon">🍃</span>
+            <span>Herkennen</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('log', this)">
+            <span class="nav-icon">🌳</span>
+            <span>Logboek</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('gear', this)">
+            <span class="nav-icon">🎒</span>
+            <span>Materiaal</span>
+        </div>
+    </div>
+
+    <script>
+        let trees = JSON.parse(localStorage.getItem('app_trees')) || [];
+        let gearList = JSON.parse(localStorage.getItem('app_gear')) || [
+            {id: 1, text: "Klimharnas", done: false},
+            {id: 2, text: "Klimlijn (langer dan boom!)", done: false},
+            {id: 3, text: "Helm", done: false},
+            {id: 4, text: "Karabiners", done: false}
+        ];
+        
+        let currentPhotoBase64 = null;
+        let currentGps = null;
+        
+        let tempCalculatedHeight = null;
+        let tempCalculatedVolume = null;
+
+        window.onload = function() {
+            renderTrees();
+            renderGear();
+        };
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById('page-' + tabId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        function calculateOnly() {
+            const D = parseFloat(document.getElementById('distance').value);
+            const L = parseFloat(document.getElementById('laser').value);
+            const O = parseFloat(document.getElementById('eyeHeight').value) || 0;
+            const dbh = parseFloat(document.getElementById('dbh').value);
+            const f = parseFloat(document.getElementById('treeType').value);
+
+            if (isNaN(D) || isNaN(L)) return alert("Vul D (Afstand) en L (Laser) in.");
+            if (D >= L) return alert("Laser (L) moet groter zijn dan afstand (D).");
+
+            const H = Math.sqrt(Math.pow(L, 2) - Math.pow(D, 2)) + O;
+            tempCalculatedHeight = H.toFixed(2);
+
+            tempCalculatedVolume = null;
+            let volDetailsText = "";
+            if (!isNaN(dbh) && dbh > 0) {
+                const dMeters = dbh / 100;
+                const g = (Math.PI * Math.pow(dMeters, 2)) / 4;
+                const V = g * H * f;
+                tempCalculatedVolume = V.toFixed(3);
+                volDetailsText = `🪵 Geschat houtvolume: ~${tempCalculatedVolume} m³ (kuub)`;
+            }
+
+            document.getElementById('resultValue').innerText = tempCalculatedHeight + " m";
+            const volRes = document.getElementById('volumeResult');
+            if (tempCalculatedVolume) {
+                volRes.innerText = volDetailsText;
+                volRes.style.display = "block";
+            } else {
+                volRes.style.display = "none";
+            }
+            document.getElementById('resultBox').style.display = "block";
+            document.getElementById('saveBtn').style.display = "flex";
+            document.getElementById('saveBtn').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function saveTreeData() {
+            if (!tempCalculatedHeight) return alert("Bereken eerst de hoogte!");
+
+            const D = parseFloat(document.getElementById('distance').value);
+            const L = parseFloat(document.getElementById('laser').value);
+            const O = parseFloat(document.getElementById('eyeHeight').value) || 0;
+            const dbh = parseFloat(document.getElementById('dbh').value);
+            const note = document.getElementById('treeNote').value.trim();
+            const name = document.getElementById('treeName').value || `Boom ${trees.length + 1}`;
+
+            let details = `D:${D}m | L:${L}m | O:${O}m`;
+            if (tempCalculatedVolume) {
+                details += ` | DBH:${dbh}cm | Vol:${tempCalculatedVolume}m³`;
+            }
+
+            const newTree = {
+                id: Date.now(),
+                name: name,
+                height: tempCalculatedHeight,
+                volume: tempCalculatedVolume,
+                details: details,
+                note: note,
+                date: new Date().toLocaleDateString('nl-NL'),
+                photo: currentPhotoBase64,
+                gps: currentGps
+            };
+
+            trees.unshift(newTree);
+            saveTrees();
+            renderTrees();
+            
+            alert("Boom succesvol opgeslagen in je Logboek!");
+            switchTab('log', document.querySelectorAll('.nav-item')[2]); // Aangepast naar index 2 i.v.m. extra tabblad
+            clearCalc();
+        }
+
+        function clearCalc() {
+            document.getElementById('treeName').value = '';
+            document.getElementById('distance').value = '';
+            document.getElementById('laser').value = '';
+            document.getElementById('dbh').value = '';
+            document.getElementById('treeNote').value = '';
+            
+            document.getElementById('resultBox').style.display = "none";
+            document.getElementById('saveBtn').style.display = "none";
+            
+            tempCalculatedHeight = null;
+            tempCalculatedVolume = null;
+            currentPhotoBase64 = null;
+            currentGps = null;
+            
+            document.getElementById('photoPreview').style.display = "none";
+            document.getElementById('locationText').innerText = "Geen locatie opgeslagen";
+        }
+
+        function saveTrees() {
+            try {
+                localStorage.setItem('app_trees', JSON.stringify(trees));
+            } catch (e) {
+                alert("Geheugen vol! Verwijder oude bomen met foto's om ruimte te maken.");
+                trees.shift();
+            }
+        }
+
+        function renderTrees() {
+            const list = document.getElementById('treeList');
+            list.innerHTML = '';
+            if (trees.length === 0) return list.innerHTML = "<p style='color:#888;text-align:center;'>Nog geen bomen opgeslagen.</p>";
+
+            trees.forEach(tree => {
+                let html = `<div class="tree-item">
+                    <div class="tree-header">
+                        <span class="tree-title">${escapeHTML(tree.name)}</span>
+                        <span class="tree-height">${tree.height}m</span>
+                    </div>
+                    <div class="tree-body">`;
+                
+                if (tree.photo) {
+                    html += `<img src="${tree.photo}" class="tree-img" alt="Foto">`;
+                }
+                
+                html += `<div style="flex: 1;">
+                            <div class="tree-details">${tree.details}<br>${tree.date} ${tree.gps ? '| 📍 '+tree.gps : ''}</div>`;
+                
+                if (tree.note) {
+                    html += `<div class="tree-note"><strong>Opmerking:</strong> ${escapeHTML(tree.note)}</div>`;
+                }
+                
+                html += `   <button class="btn-danger" onclick="deleteTree(${tree.id})">Verwijder</button>
+                        </div>
+                    </div>
+                </div>`;
+                list.innerHTML += html;
+            });
+        }
+
+        function deleteTree(id) {
+            if(confirm("Weet je zeker dat je deze boom wilt verwijderen?")) {
+                trees = trees.filter(t => t.id !== id);
+                saveTrees();
+                renderTrees();
+            }
+        }
+
+        // Camera input voor het Meten tabblad
+        document.getElementById('cameraInput').addEventListener('change', function(e) {
+            handleImageUpload(e, 'photoPreview', true);
+        });
+
+        // Camera input voor het Herkennen tabblad
+        document.getElementById('idCameraInput').addEventListener('change', function(e) {
+            handleImageUpload(e, 'idPhotoPreview', false);
+            document.getElementById('recognitionInstructions').style.display = "block";
+        });
+
+        function handleImageUpload(e, previewId, saveAsCurrent) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600;
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    const base64Data = canvas.toDataURL('image/jpeg', 0.6);
+                    
+                    if (saveAsCurrent) {
+                        currentPhotoBase64 = base64Data;
+                    }
+                    
+                    const preview = document.getElementById(previewId);
+                    preview.src = base64Data;
+                    preview.style.display = "block";
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function getLocation() {
+            const locText = document.getElementById('locationText');
+            locText.innerText = "Locatie zoeken...";
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        currentGps = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+                        locText.innerText = `📍 ${currentGps}`;
+                    },
+                    (err) => { locText.innerText = "❌ Locatie geweigerd/mislukt"; }
+                );
+            } else {
+                locText.innerText = "GPS niet ondersteund";
+            }
+        }
+        
+        function openPlantNet() {
+            window.open('https://identify.plantnet.org/nl', '_blank');
+        }
+
+        function renderGear() {
+            const cont = document.getElementById('checklistCont');
+            cont.innerHTML = '';
+            
+            gearList.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `check-item ${item.done ? 'done' : ''}`;
+                div.innerHTML = `
+                    <label>
+                        <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleGear(${item.id})">
+                        ${escapeHTML(item.text)}
+                    </label>
+                    <button style="border:none; background:none; color:var(--danger); font-size:18px;" onclick="deleteGear(${item.id})">🗑️</button>
+                `;
+                cont.appendChild(div);
+            });
+            localStorage.setItem('app_gear', JSON.stringify(gearList));
+        }
+
+        function addChecklistItem() {
+            const input = document.getElementById('newItemText');
+            if (!input.value.trim()) return;
+            
+            gearList.push({ id: Date.now(), text: input.value, done: false });
+            input.value = '';
+            renderGear();
+        }
+
+        function toggleGear(id) {
+            const item = gearList.find(g => g.id === id);
+            if (item) item.done = !item.done;
+            renderGear();
+        }
+
+        function deleteGear(id) {
+            gearList = gearList.filter(g => g.id !== id);
+            renderGear();
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+    </script>
+</body>
+</html>
