@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>BoomKlim App v4.3</title>
+    <title>BoomKlim App v4.4</title>
     <style>
         :root {
             --primary: #2c5e3b;
@@ -99,6 +99,7 @@
         .tree-note { font-size: 13px; font-style: italic; color: #444; background: #f0f4f1; padding: 8px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--primary); }
         .tree-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
         .tree-body { display: flex; gap: 10px; align-items: flex-start; }
+        .gps-link { color: var(--info); text-decoration: none; font-weight: 600; }
 
         .check-form { display: flex; gap: 10px; margin-bottom: 20px; }
         .check-form input { margin-bottom: 0; }
@@ -139,6 +140,7 @@
 </head>
 <body>
 
+    <!-- PAGE 1: Calculator -->
     <div id="page-calc" class="page active">
         <h1>📏 Boom Meten & Volume</h1>
         
@@ -206,6 +208,7 @@
         </div>
     </div>
 
+    <!-- PAGE 2: Tree Recognition -->
     <div id="page-identify" class="page">
         <h1>🍃 Boom Herkennen</h1>
         
@@ -237,24 +240,36 @@
             </div>
 
             <div id="quiz-result" class="quiz-result">
-                </div>
+                <!-- Result comes here -->
+            </div>
             <button id="quiz-reset" class="btn btn-secondary" style="display:none; margin-top:10px;" onclick="resetQuiz()">🔄 Begin opnieuw</button>
         </div>
     </div>
 
+    <!-- PAGE 3: Logbook -->
     <div id="page-log" class="page">
         <h1>🌳 Opgeslagen Bomen</h1>
         
-        <button class="btn btn-outline" style="margin-bottom: 15px; background-color: #e6f2ff; border-color: var(--info); color: var(--info);" onclick="exportToCSV()">
-            📥 Exporteer naar Excel (CSV)
-        </button>
+        <!-- Drie kleine actieknoppen voor data -->
+        <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+            <button class="btn btn-outline" style="flex: 1; font-size: 12px; padding: 10px 5px; background: #e6f2ff; border-color: var(--info); color: var(--info);" onclick="exportToCSV()">📥 Excel</button>
+            <button class="btn btn-outline" style="flex: 1; font-size: 12px; padding: 10px 5px; background: #eaf2ec; border-color: var(--primary); color: var(--primary);" onclick="exportBackup()">☁️ Back-up</button>
+            <label class="btn btn-outline" style="flex: 1; font-size: 12px; padding: 10px 5px; background: #ffeef0; border-color: var(--danger); color: var(--danger); cursor: pointer; margin-bottom: 0; display:flex; justify-content:center; align-items:center;">
+                <input type="file" accept=".json" style="display: none;" onchange="importBackup(event)">
+                🔄 Herstel
+            </label>
+        </div>
+
+        <input type="text" id="searchLog" placeholder="🔍 Zoek op naam, soort of opmerking..." onkeyup="renderTrees(this.value)" style="margin-bottom: 15px;">
 
         <div class="card">
             <div id="treeList">
-                </div>
+                <!-- Trees will be injected here -->
+            </div>
         </div>
     </div>
 
+    <!-- PAGE 4: Checklist -->
     <div id="page-gear" class="page">
         <h1>🎒 Materiaal</h1>
         <div class="card">
@@ -274,10 +289,12 @@
                 <button class="btn btn-primary" onclick="addChecklistItem()">+</button>
             </div>
             <div id="checklistCont">
-                </div>
+                <!-- Checklist items injected here -->
+            </div>
         </div>
     </div>
 
+    <!-- Bottom Navigation -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('calc', this)">
             <span class="nav-icon">📏</span>
@@ -390,7 +407,10 @@
             };
             trees.unshift(newTree);
             try { localStorage.setItem('app_trees', JSON.stringify(trees)); } catch(e) { alert("Geheugen vol!"); trees.shift(); }
+            
+            document.getElementById('searchLog').value = ''; // Reset zoekbalk
             renderTrees();
+            
             alert("Boom opgeslagen!");
             switchTab('log', document.querySelectorAll('.nav-item')[2]);
             clearCalc();
@@ -410,52 +430,62 @@
             document.getElementById('locationText').innerText = "Geen locatie opgeslagen";
         }
 
-        function renderTrees() {
+        // --- RENDER LOGBOEK (INCLUSIEF ZOEKFUNCTIE & GPS LINK) ---
+        function renderTrees(searchTerm) {
+            var term = (searchTerm || '').toLowerCase();
             var list = document.getElementById('treeList');
             list.innerHTML = '';
-            if (trees.length === 0) { list.innerHTML = "<p style='color:#888;text-align:center;'>Nog geen bomen.</p>"; return; }
-            for (var i = 0; i < trees.length; i++) {
-                var tree = trees[i];
+            
+            var filteredTrees = trees.filter(function(t) {
+                return (t.name || '').toLowerCase().includes(term) || 
+                       (t.note || '').toLowerCase().includes(term) ||
+                       (t.date || '').toLowerCase().includes(term);
+            });
+
+            if (filteredTrees.length === 0) { list.innerHTML = "<p style='color:#888;text-align:center;'>Geen bomen gevonden.</p>"; return; }
+            
+            for (var i = 0; i < filteredTrees.length; i++) {
+                var tree = filteredTrees[i];
+                
+                // Nieuw: Maak GPS klikbaar
+                var gpsHtml = '';
+                if (tree.gps) {
+                    gpsHtml = ' | <a href="https://maps.google.com/?q=' + tree.gps + '" target="_blank" class="gps-link">📍 Route</a>';
+                }
+
                 var html = '<div class="tree-item"><div class="tree-header"><span class="tree-title">' + escapeHTML(tree.name) + '</span><span class="tree-height">' + tree.height + 'm</span></div><div class="tree-body">';
                 if (tree.photo) html += '<img src="' + tree.photo + '" class="tree-img" alt="Foto">';
-                html += '<div style="flex: 1;"><div class="tree-details">' + tree.details + '<br>' + tree.date + (tree.gps ? ' | ' + tree.gps : '') + '</div>';
+                html += '<div style="flex: 1;"><div class="tree-details">' + tree.details + '<br>' + tree.date + gpsHtml + '</div>';
                 if (tree.note) html += '<div class="tree-note">' + escapeHTML(tree.note) + '</div>';
-                html += '<button class="btn-edit" onclick="editTreeName(' + tree.id + ')">✏️ Naam bewerken</button>' +
+                html += '<button class="btn-edit" onclick="editTreeName(' + tree.id + ')">✏️ Naam</button>' +
                         '<button class="btn-danger" onclick="deleteTree(' + tree.id + ')">Verwijder</button></div></div></div>';
                 list.innerHTML += html;
             }
         }
 
-        // NEW: Edit tree name function
         function editTreeName(id) {
             var tree = trees.find(function(t) { return t.id === id; });
             if (!tree) return;
-            
             var newName = prompt("Wijzig de naam van de boom of locatie:", tree.name);
             if (newName !== null) {
                 newName = newName.trim();
-                if (newName === "") {
-                    alert("De naam mag niet leeg zijn!");
-                    return;
+                if (newName !== "") {
+                    tree.name = newName;
+                    try { localStorage.setItem('app_trees', JSON.stringify(trees)); } catch(e) { alert("Kon de wijziging niet opslaan."); }
+                    renderTrees(document.getElementById('searchLog').value); // Herteken met eventuele zoekterm
                 }
-                tree.name = newName;
-                try {
-                    localStorage.setItem('app_trees', JSON.stringify(trees));
-                } catch(e) {
-                    alert("Kon de wijziging niet opslaan.");
-                }
-                renderTrees();
             }
         }
 
         function deleteTree(id) {
-            if(confirm("Verwijderen?")) {
+            if(confirm("Deze meting verwijderen?")) {
                 trees = trees.filter(function(t) { return t.id !== id; });
                 try { localStorage.setItem('app_trees', JSON.stringify(trees)); } catch(e) {}
-                renderTrees();
+                renderTrees(document.getElementById('searchLog').value);
             }
         }
 
+        // --- EXPORT & BACK-UP FUNCTIES ---
         function exportToCSV() {
             if (trees.length === 0) { alert("Logboek is leeg."); return; }
             var csv = "\uFEFFBoom ID;Hoogte;Volume;Details;Opmerking;Datum;GPS\r\n";
@@ -468,6 +498,43 @@
             link.href = URL.createObjectURL(blob);
             link.download = "BoomKlim_Logboek.csv";
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        function exportBackup() {
+            var data = { trees: trees, gear: gearList };
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+            var link = document.createElement("a");
+            link.href = dataStr;
+            var dateString = new Date().toISOString().split('T')[0];
+            link.download = "BoomKlim_Backup_" + dateString + ".json";
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        function importBackup(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var data = JSON.parse(e.target.result);
+                    if (data.trees) {
+                        trees = data.trees;
+                        localStorage.setItem('app_trees', JSON.stringify(trees));
+                    }
+                    if (data.gear) {
+                        gearList = data.gear;
+                        localStorage.setItem('app_gear', JSON.stringify(gearList));
+                    }
+                    document.getElementById('searchLog').value = ''; // Wis zoekterm
+                    renderTrees();
+                    renderGear();
+                    alert("Back-up succesvol hersteld!");
+                } catch(err) {
+                    alert("Fout bij het inladen. Is dit een geldig BoomKlim JSON-bestand?");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reset inputveld zodat je hetzelfde bestand nog eens kan kiezen
         }
 
         // --- CAMERA & GPS ---
@@ -518,7 +585,7 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     function(pos) { currentGps = pos.coords.latitude.toFixed(4) + ", " + pos.coords.longitude.toFixed(4); loc.innerText = "📍 " + currentGps; },
-                    function() { loc.innerText = "❌ GPS mislukt"; }
+                    function() { loc.innerText = "❌ GPS mislukt (Sta locatie toe in instellingen)"; }
                 );
             }
         }
