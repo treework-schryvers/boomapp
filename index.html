@@ -6,6 +6,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>BoomKlim App v4.4</title>
+        <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+        
     <style>
         :root {
             --primary: #2c5e3b;
@@ -652,5 +655,20 @@
         function deleteGear(id) { gearList = gearList.filter(function(g) { return g.id !== id; }); renderGear(); }
         function escapeHTML(str) { return str.replace(/[&<>'"]/g, function(tag) { return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[tag]||tag; }); }
     </script>
+        <!-- ... al jouw andere code ... -->
+    
+    <script>
+        // Activeer de Service Worker voor offline gebruik
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js').then(function(registration) {
+                    console.log('ServiceWorker registratie succesvol');
+                }, function(err) {
+                    console.log('ServiceWorker registratie mislukt: ', err);
+                });
+            });
+        }
+    </script>
 </body>
 </html>
+
